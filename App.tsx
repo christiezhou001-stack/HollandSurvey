@@ -127,7 +127,7 @@ const App: React.FC = () => {
                   onClick={startQuiz}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-xl shadow-blue-200 transition-all active:scale-95 text-lg"
                 >
-                  开始无暗示测评
+                  开始测评
                 </button>
                 <div className="text-center">
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
@@ -205,7 +205,7 @@ const App: React.FC = () => {
                     disabled={currentIndex === 0}
                     className={`text-[10px] font-black uppercase tracking-widest py-2 px-8 rounded-full border transition-all ${currentIndex === 0 ? 'opacity-0 pointer-events-none' : 'text-slate-400 border-slate-100 hover:bg-slate-50'}`}
                   >
-                    ← Previous Question
+                    ← 返回前一个问题
                   </button>
                 </div>
               </div>
