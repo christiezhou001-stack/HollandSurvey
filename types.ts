@@ -16,6 +16,7 @@ export interface Question {
   typeName: string;
   text: string;
   answerFormat: AnswerType;
+  domain: string;
 }
 
 export interface ScoreMap {

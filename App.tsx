@@ -29,7 +29,7 @@ const App: React.FC = () => {
   const [step, setStep] = useState<'START' | 'QUIZ' | 'RESULT'>('START');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [scores, setScores] = useState<ScoreMap>(INITIAL_SCORES);
-  const [history, setHistory] = useState<number[]>([]); 
+  const [history, setHistory] = useState<number[]>([]);
   const [shuffledQuestions, setShuffledQuestions] = useState<Question[]>([]);
 
   const startQuiz = () => {
@@ -76,6 +76,31 @@ const App: React.FC = () => {
 
   const hollandCode = sortedTypes.slice(0, 3).join('');
 
+  const detailedScores = useMemo(() => {
+    const result: Record<HollandType, Record<string, number>> = {
+      [HollandType.R]: {},
+      [HollandType.I]: {},
+      [HollandType.A]: {},
+      [HollandType.S]: {},
+      [HollandType.E]: {},
+      [HollandType.C]: {},
+    };
+
+    shuffledQuestions.forEach((q, index) => {
+      const score = history[index] || 0;
+      if (!result[q.type][q.domain]) {
+        result[q.type][q.domain] = 0;
+      }
+      result[q.type][q.domain] += score;
+    });
+
+    return result;
+  }, [shuffledQuestions, history]);
+
+  const handlePrint = () => {
+    window.print();
+  };
+
   const chartData = {
     labels: ['现实 (R)', '研究 (I)', '艺术 (A)', '社会 (S)', '企业 (E)', '常规 (C)'],
     datasets: [
@@ -92,7 +117,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center">
       <div className="w-full max-w-2xl bg-white min-h-screen shadow-xl flex flex-col border-x border-slate-200">
-        
+
         {/* 固定头部 */}
         <div className="bg-gradient-to-r from-blue-700 to-indigo-800 p-6 text-white shrink-0 shadow-lg z-10">
           <h1 className="text-xl md:text-2xl font-black tracking-tight text-center">霍兰德职业兴趣评测</h1>
@@ -101,17 +126,17 @@ const App: React.FC = () => {
 
         {/* 内容区 */}
         <div className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden">
-          
+
           {step === 'START' && (
             <div className="p-6 md:p-8 flex flex-col h-full animate-in fade-in duration-500">
               <div className="space-y-4 mb-8">
                 <div className="bg-blue-50 rounded-2xl p-4 border border-blue-100">
                   <p className="text-blue-800 text-sm font-medium text-center leading-relaxed">
-                    通过霍兰德职业兴趣量表，探索最适合您的职业环境。<br/>
+                    通过霍兰德职业兴趣量表，探索最适合您的职业环境。<br />
                     请根据直觉作答，约需 5-10 分钟。
                   </p>
                 </div>
-                
+
                 <div className="grid grid-cols-3 gap-3">
                   {Object.values(HOLLAND_INFO).map((info) => (
                     <div key={info.type} className="flex flex-col items-center p-3 rounded-xl bg-slate-50 border border-slate-100 shadow-sm transition-transform hover:scale-105">
@@ -155,7 +180,7 @@ const App: React.FC = () => {
               <div className="flex-1 flex flex-col items-center justify-center px-8">
                 {/* 核心改动：设置固定高度 h-64 (约 256px)，确保按钮位置不动 */}
                 <div className="w-full h-64 flex items-center justify-center">
-                   <h2 className="text-2xl md:text-3xl font-black text-slate-800 text-center leading-snug">
+                  <h2 className="text-2xl md:text-3xl font-black text-slate-800 text-center leading-snug">
                     {currentQuestion.text}
                   </h2>
                 </div>
@@ -165,14 +190,14 @@ const App: React.FC = () => {
               <div className="bg-white border-t border-slate-100 p-6 pb-12 space-y-6 shrink-0">
                 {currentQuestion.answerFormat === 'BINARY' ? (
                   <div className="grid grid-cols-2 gap-4">
-                    <button 
-                      onClick={() => handleAnswer(1)} 
+                    <button
+                      onClick={() => handleAnswer(1)}
                       className="h-20 bg-slate-900 hover:bg-black text-white rounded-2xl font-black text-xl active:scale-95 transition-all shadow-lg"
                     >
                       是 (YES)
                     </button>
-                    <button 
-                      onClick={() => handleAnswer(0)} 
+                    <button
+                      onClick={() => handleAnswer(0)}
                       className="h-20 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-black text-xl active:scale-95 transition-all"
                     >
                       否 (NO)
@@ -200,8 +225,8 @@ const App: React.FC = () => {
                 )}
 
                 <div className="flex justify-center pt-2">
-                  <button 
-                    onClick={handleBack} 
+                  <button
+                    onClick={handleBack}
                     disabled={currentIndex === 0}
                     className={`text-[10px] font-black uppercase tracking-widest py-2 px-8 rounded-full border transition-all ${currentIndex === 0 ? 'opacity-0 pointer-events-none' : 'text-slate-400 border-slate-100 hover:bg-slate-50'}`}
                   >
@@ -224,26 +249,26 @@ const App: React.FC = () => {
               {/* 雷达图卡片 */}
               <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl space-y-8 relative overflow-hidden">
                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none" />
-                
+
                 <div className="h-64 flex items-center justify-center relative z-10">
-                  <Radar 
-                    data={chartData} 
+                  <Radar
+                    data={chartData}
                     options={{
                       maintainAspectRatio: false,
-                      scales: { 
-                        r: { 
-                          grid: { color: 'rgba(255,255,255,0.1)' }, 
-                          angleLines: { color: 'rgba(255,255,255,0.1)' }, 
-                          pointLabels: { color: '#94a3b8', font: { size: 11, weight: 'bold' } }, 
+                      scales: {
+                        r: {
+                          grid: { color: 'rgba(255,255,255,0.1)' },
+                          angleLines: { color: 'rgba(255,255,255,0.1)' },
+                          pointLabels: { color: '#94a3b8', font: { size: 11, weight: 'bold' } },
                           ticks: { display: false },
                           suggestedMin: 0
-                        } 
+                        }
                       },
                       plugins: { legend: { display: false } }
-                    }} 
+                    }}
                   />
                 </div>
-                
+
                 <div className="text-center space-y-6 relative z-10">
                   <p className="text-blue-400 text-xs font-black uppercase tracking-widest">最终职业代码组合</p>
                   <div className="flex justify-center gap-4">
@@ -256,6 +281,43 @@ const App: React.FC = () => {
                   <p className="text-slate-400 text-sm leading-relaxed px-4 pt-4 border-t border-white/5">
                     您的倾向为 <span className="text-white font-bold">{sortedTypes.slice(0, 3).map(t => HOLLAND_INFO[t].name.split(' ')[0]).join(' + ')}</span> 混合型特征。
                   </p>
+
+                  <div className="pt-4 no-print">
+                    <button
+                      onClick={handlePrint}
+                      className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-blue-500/20"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 00-2 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                      打印 / 保存详细报告 (PDF)
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* 打印专用：详细得分列表 */}
+              <div className="print-only mt-8 space-y-6">
+                <h3 className="text-xl font-black text-slate-800 border-b-2 border-slate-200 pb-2">详细领域得分清单 (Detailed Scores)</h3>
+                <div className="overflow-hidden rounded-2xl border border-slate-200">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-slate-50 text-slate-400 font-black uppercase text-[10px] tracking-widest">
+                      <tr>
+                        <th className="px-6 py-4">Holland 类型</th>
+                        <th className="px-6 py-4">分类领域 (Domain)</th>
+                        <th className="px-6 py-4 text-right">得分</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {Object.entries(detailedScores).map(([type, domains]) => (
+                        Object.entries(domains).map(([domain, score], dIdx) => (
+                          <tr key={`${type}-${domain}`} className="hover:bg-slate-50/50">
+                            <td className="px-6 py-4 font-bold text-slate-700">{dIdx === 0 ? HOLLAND_INFO[type as HollandType].name : ""}</td>
+                            <td className="px-6 py-4 text-slate-600">{domain}</td>
+                            <td className="px-6 py-4 text-right font-black text-blue-600">{score}</td>
+                          </tr>
+                        ))
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
@@ -297,12 +359,12 @@ const App: React.FC = () => {
                 })}
               </div>
 
-              <div className="pb-16 text-center border-t border-slate-100 pt-12">
-                <button 
+              <div className="pb-16 text-center border-t border-slate-100 pt-12 no-print">
+                <button
                   onClick={() => {
                     setStep('START');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }} 
+                  }}
                   className="bg-slate-100 hover:bg-slate-200 text-slate-500 font-black text-sm py-4 px-12 rounded-2xl transition-all active:scale-95"
                 >
                   RESTART ASSESSMENT
