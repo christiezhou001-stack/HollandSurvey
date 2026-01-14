@@ -25,6 +25,8 @@ const TYPE_ICONS: Record<HollandType, React.ReactNode> = {
   [HollandType.C]: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>,
 };
 
+const DOMAIN_ORDER = ['活动', '能力', '职业', '能力类型自评'];
+
 const App: React.FC = () => {
   const [step, setStep] = useState<'START' | 'QUIZ' | 'RESULT'>('START');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -307,14 +309,17 @@ const App: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {Object.entries(detailedScores).map(([type, domains]) => (
-                        Object.entries(domains).map(([domain, score], dIdx) => (
-                          <tr key={`${type}-${domain}`} className="hover:bg-slate-50/50">
-                            <td className="px-6 py-4 font-bold text-slate-700">{dIdx === 0 ? HOLLAND_INFO[type as HollandType].name : ""}</td>
-                            <td className="px-6 py-4 text-slate-600">{domain}</td>
-                            <td className="px-6 py-4 text-right font-black text-blue-600">{score}</td>
-                          </tr>
-                        ))
+                      {Object.values(HollandType).map((type) => (
+                        DOMAIN_ORDER.map((domain, dIdx) => {
+                          const score = detailedScores[type][domain] || 0;
+                          return (
+                            <tr key={`${type}-${domain}`} className="hover:bg-slate-50/50">
+                              <td className="px-6 py-4 font-bold text-slate-700">{dIdx === 0 ? HOLLAND_INFO[type].name : ""}</td>
+                              <td className="px-6 py-4 text-slate-600">{domain}</td>
+                              <td className="px-6 py-4 text-right font-black text-blue-600">{score}</td>
+                            </tr>
+                          );
+                        })
                       ))}
                     </tbody>
                   </table>
